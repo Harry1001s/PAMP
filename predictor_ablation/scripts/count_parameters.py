@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(HERE))
-from predictor_ablation.config import a0, capacity_grid
+from src.config import a0, capacity_grid
 
 
 def main():

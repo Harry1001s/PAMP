@@ -15,4 +15,4 @@ with the Residual Predictor that guides PAMP.
   and writes the model referenced elsewhere in this repository as
   `extra_trees_quick_v1/features_2304/model_seed_42.joblib`.
 
-See `ORIGINAL_README.md` for the original experiment-directory notes.
+See [`../docs/provenance/extra_trees_baseline.README.md`](../docs/provenance/extra_trees_baseline.README.md) for the original experiment-directory notes.

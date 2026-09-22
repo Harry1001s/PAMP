@@ -12,9 +12,9 @@ from rdkit import Chem
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
-from predictor_ablation.data import load_splits
-from predictor_ablation.reproducibility import atomic_json, sha256_json
-from predictor_ablation.config import a0, capacity_grid, concat_projection_grid
+from src.data import load_splits
+from src.reproducibility import atomic_json, sha256_json
+from src.config import a0, capacity_grid, concat_projection_grid
 
 
 def main():

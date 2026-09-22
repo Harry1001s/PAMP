@@ -7,7 +7,7 @@ substrate-conditioned residue-level correction learned on top of it.
 - `residual_model.py` — `LocalCorrection` is the Residue-Conditioned TabM (RC-TabM)
   branch: substrate-conditioned additive attention over residue representations
   (Bahdanau-style, masking padding), followed by a `TabM` head (`k=16` members,
-  parameter-efficient ensembling, vendored under `../rc_tabm_variants/vendor/tabm.py`).
+  parameter-efficient ensembling, vendored under `../third_party/tabm/tabm.py`).
   `ResidualPredictor` combines this with the frozen `ImprovedKcatEnsemble` global branch
   (`../original_predictor/improved_kcat_ensemble.py`); `gamma` is the learned scale in
   Eq. 2, initialized to zero so the model starts equivalent to the Original Predictor.
@@ -20,4 +20,4 @@ substrate-conditioned residue-level correction learned on top of it.
   checkpoint referenced elsewhere in this repository as
   `experiments/catapro_residual_condpool/checkpoints/best.pt`.
 
-See `ORIGINAL_README.md` for the original experiment-directory notes.
+See [`../docs/provenance/residual_predictor.README.md`](../docs/provenance/residual_predictor.README.md) for the original experiment-directory notes.

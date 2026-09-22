@@ -5,12 +5,12 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from predictor_ablation.models import build_model
-from predictor_ablation.preprocessing import TargetScaler, FeatureScaler
-from predictor_ablation.metrics import regression_metrics
-from predictor_ablation.data import load_splits
-from predictor_ablation.data import load_vector_data
-from predictor_ablation.training import epoch_batches
+from src.models import build_model
+from src.preprocessing import TargetScaler, FeatureScaler
+from src.metrics import regression_metrics
+from src.data import load_splits
+from src.data import load_vector_data
+from src.training import epoch_batches
 
 
 class Correctness(unittest.TestCase):

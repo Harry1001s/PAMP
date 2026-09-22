@@ -1,0 +1,19 @@
+# Dependency manifest, not a pinned/tested environment.
+# Versions are left unpinned; the original workspace used whatever was current as of
+# the paper's ESM2/ESMC/UniKP/TabM releases (2023-2025). rtdl-num-embeddings is vendored
+# under third_party/tabm/ rather than installed from PyPI.
+
+torch
+numpy
+pandas
+scipy
+scikit-learn
+joblib
+rdkit
+biopython
+fair-esm
+transformers
+matplotlib
+tqdm
+pyyaml
+openpyxl

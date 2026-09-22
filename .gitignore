@@ -1,3 +1,31 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
 .ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Environments
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model artifacts / caches / large data (not tracked in this code-only repository)
+*.pt
+*.pth
+*.ckpt
+*.joblib
+*.npy
+*.npz
+*.pkl
+*.h5
+*.safetensors
+
+# Logs and run outputs
+*.log
