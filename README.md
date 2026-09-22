@@ -19,14 +19,14 @@ included; only the code that produced them.
 | [`third_party/tabm/`](third_party/tabm) | — | Vendored TabM implementation that `method/residual_predictor/` and `experiments/rc_tabm_variants/` depend on. |
 | [`experiments/extra_trees_baseline/`](extra_trees_baseline) | Table I / Table III | Extra Trees baseline (UniKP-style regression framework) used both as a turnover-prediction baseline and as the independent, non-differentiable re-scorer in §Transfer to an Independent Predictor. |
 | [`experiments/structural_validation/`](structural_validation) | §Mutation Design (sequence recovery / TM-score / pLDDT) | ESMFold-based structural sanity check of PAMP designs. |
-| [`experiments/cost_benefit/`](cost_benefit_analysis) | §Model Complexity Analysis | Exhaustive 19L-scan vs. PAMP (4 passes/round) cost-benefit comparison, including the standalone single-file PAMP/HotFlip attack implementation it is built on. |
+| [`exploratory/cost_benefit/`](exploratory/cost_benefit) | none (exploratory) | Exhaustive 19L enumeration vs. gradient search, run against the **Original Predictor** rather than the Residual Predictor. No manuscript number comes from here. |
 | [`data/`](data) | §Data and Code Availability | Placeholder + manifest for the data partitions, design-cohort membership, candidate-level predictions, and algorithm settings the paper's Data and Code Availability statement refers to; not yet released (see that folder's README). |
 | [`docs/provenance/`](docs/provenance) | — | The original per-experiment READMEs from the source workspace, kept verbatim for context. |
 
 ## Method naming
 
 The paper's method names (§Implementation Details, Table II/III) and the internal
-identifiers used throughout `method/search/` and `experiments/cost_benefit/` differ. This is
+identifiers used throughout `method/search/` and `exploratory/cost_benefit/` differ. This is
 the authoritative mapping:
 
 | Code | Paper |
@@ -47,7 +47,7 @@ Source workspace, for reference (not part of this repository):
 - A handful of shared, lower-level modules (the Original Predictor components,
   structural-validation pipeline, and cost-benefit scripts) lived at the root of
   `rivermind-data/` rather than under `experiments/`; they are reproduced here under
-  `method/original_predictor/`, `experiments/structural_validation/`, and `experiments/cost_benefit/`.
+  `method/original_predictor/`, `experiments/structural_validation/`, and `exploratory/cost_benefit/`.
 
 `docs/provenance/*.README.md` are the READMEs that shipped with each corresponding
 experiment directory in the source workspace, kept verbatim for context.
