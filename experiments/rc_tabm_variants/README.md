@@ -6,7 +6,7 @@ Standalone CondPool-TabM."
 
 - `scripts/` — training/evaluation code shared across the TabM variants: `train.py`,
   `predictor.py`, `predict.py`, `common.py` (data loading, mirrors
-  `../residual_predictor/`'s conventions), `cache_reader.py`, `extract_residue_cache.py`,
+  `../method/residual_predictor/`'s conventions), `cache_reader.py`, `extract_residue_cache.py`,
   `finalize_cache.py` (build/verify the cached full-residue ESM2 representations used by
   every residue-conditioned variant), `sanity_check.py`, `compare_results.py`,
   `evaluate_baseline_train.py`, and `verify_*.py` deliverable checks.
@@ -16,7 +16,7 @@ Standalone CondPool-TabM."
 - `../third_party/tabm/tabm.py`, `../third_party/tabm/rtdl_num_embeddings.py` — vendored third-party TabM
   implementation (Gorishniy et al., *TabM: Advancing Tabular Deep Learning with
   Parameter-Efficient Ensembling*, ICLR 2025, `yandex-research/tabm`), used by both this
-  directory and `../residual_predictor/residual_model.py`. Original license header
+  directory and `../method/residual_predictor/residual_model.py`. Original license header
   preserved at the top of each file.
 - `build_comparison.py` / `ITERATION_COMPARISON_REPORT.md` — aggregates metrics across
   RC-TabM iterations and the Mean-TabM / CondPool-TabM variants into a single comparison

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Resumable ESMFold-v1 structural evaluation for PAMP mutations."""
 from __future__ import annotations
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import USALIGN
 
 import argparse, csv, hashlib, json, math, os, re, subprocess, sys, time
 import gc, io, types, fcntl
@@ -305,7 +310,7 @@ def make_results(df,out,cache,binary):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('--input',required=True); ap.add_argument('--out',required=True)
-    ap.add_argument('--model-dir',required=True); ap.add_argument('--usalign',default='/root/tools/USalign')
+    ap.add_argument('--model-dir',required=True); ap.add_argument('--usalign',default=USALIGN)
     ap.add_argument('--pilot',type=int,default=0); ap.add_argument('--bootstrap',type=int,default=10000)
     ap.add_argument('--seed',type=int,default=2026); ap.add_argument('--summarize-only',action='store_true')
     args=ap.parse_args(); out=Path(args.out).resolve(); inp=Path(args.input).resolve()

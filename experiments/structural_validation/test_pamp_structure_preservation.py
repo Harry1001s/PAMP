@@ -1,3 +1,8 @@
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import USALIGN
 import tempfile
 import unittest
 from pathlib import Path
@@ -27,7 +32,7 @@ class MetricsTests(unittest.TestCase):
             m=r.backbone_rmsd(a,b,10)
             self.assertLess(m['backbone_rmsd_angstrom'],1e-10)
             self.assertLess(m['mutation_site_ca_displacement_angstrom'],1e-10)
-            self.assertAlmostEqual(r.usalign(a,b,'/root/tools/USalign')['tm_score'],1)
+            self.assertAlmostEqual(r.usalign(a,b,USALIGN)['tm_score'],1)
             # Missing backbone atoms must fail, not silently shift mutation index.
             b.write_text('\n'.join(b.read_text().splitlines()[1:]))
             with self.assertRaises(RuntimeError): r.backbone_rmsd(a,b,10)
@@ -38,12 +43,12 @@ class MetricsTests(unittest.TestCase):
             wt='A'*20; mut='C'+'A'*19
             cache={v:{'status':'success','plddt_path':str(p),'pdb_path':str(out/'missing.pdb')} for v in [wt,mut]}
             with patch.object(r,'usalign',side_effect=ValueError('injected alignment failure')):
-                result=r.pair_metrics(out,wt,mut,cache,'/root/tools/USalign')
+                result=r.pair_metrics(out,wt,mut,cache,USALIGN)
             self.assertEqual(result['structure_status'],'metric_error')
             self.assertIn('injected alignment failure',result['structure_error'])
             self.assertEqual(result['delta_mean_plddt'],0)
             cache[mut]={'status':'prediction_error','error':'injected folding failure'}
-            result=r.pair_metrics(out,wt,mut,cache,'/root/tools/USalign')
+            result=r.pair_metrics(out,wt,mut,cache,USALIGN)
             self.assertEqual(result['structure_status'],'prediction_error')
             self.assertEqual(result['wt_mean_plddt'],80)
             self.assertNotIn('mut_mean_plddt',result)
@@ -65,7 +70,7 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(len(df),1650)
         self.assertEqual((pd.to_numeric(df.delta_log2_pred)<0).sum(),397)
         with tempfile.TemporaryDirectory() as d:
-            res=r.make_results(df,Path(d),{},'/root/tools/USalign')
+            res=r.make_results(df,Path(d),{},USALIGN)
         self.assertEqual(res.cache_row.tolist(),df.cache_row.tolist())
         self.assertTrue(res.structure_status.eq('pending').all())
 

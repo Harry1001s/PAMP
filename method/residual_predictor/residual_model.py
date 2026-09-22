@@ -1,10 +1,14 @@
 """Frozen original predictor + zero-initialized gated residue correction."""
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import (add_module_paths, RC_TABM_SCRIPTS, TABM_VENDOR,
+                        ORIGINAL_PREDICTOR_DIR)
 import sys
 from pathlib import Path
 
-EXPERIMENT=Path(__file__).resolve().parents[1]
-SCREEN=EXPERIMENT.parent/'catapro_tabm_small'
-sys.path.insert(0,str(SCREEN/'scripts'))
+add_module_paths(RC_TABM_SCRIPTS, TABM_VENDOR, ORIGINAL_PREDICTOR_DIR)
 from common import ROOT,BASE,sha,dump,load_data,metrics
 import torch
 from torch import nn

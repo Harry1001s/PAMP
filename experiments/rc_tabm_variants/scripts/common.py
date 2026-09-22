@@ -1,4 +1,10 @@
 """Read-only access to the existing CataPro experiment. Never creates splits."""
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import (KCAT_CSV, PROTEIN_SUBSTRATE_V1, DATA_ROOT,
+                        add_module_paths, ORIGINAL_PREDICTOR_DIR, TABM_VENDOR)
 import hashlib
 import json
 import pickle
@@ -9,14 +15,13 @@ import numpy as np
 import pandas as pd
 
 OUT = Path(__file__).resolve().parents[1]
-ROOT = OUT.parents[1]
-sys.path.insert(0, str(OUT / 'vendor'))
-sys.path.insert(0, str(ROOT))
-SOURCE = Path('/root/kcat-data_0.4simi-10fold.csv')
+ROOT = DATA_ROOT
+add_module_paths(TABM_VENDOR, ORIGINAL_PREDICTOR_DIR)
+SOURCE = KCAT_CSV
 SPLIT = ROOT / 'experiment_mean/split_indices.npz'
 PROTEIN = ROOT / 'catpro_esm2_mean_pooling/protein_mean_embs.pkl'
 SUBSTRATE = ROOT / 'experiment_mean/smiles_unikp1024.npy'
-BASE = Path('/root/paper_revision/20260910T034935Z/pamp_protein_substrate_v1')
+BASE = PROTEIN_SUBSTRATE_V1
 
 
 def sha(path):

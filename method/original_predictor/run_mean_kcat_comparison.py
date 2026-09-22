@@ -1,4 +1,9 @@
 """Paired mean-embedding comparison; test is evaluated only after all fits finish."""
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import KCAT_CSV
 import argparse, hashlib, json, math, pickle, random, time
 from pathlib import Path
 import numpy as np
@@ -10,7 +15,7 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from kcat_models import build_predictor
 
 ROOT = Path(__file__).resolve().parent
-SOURCE = Path('/root/kcat-data_0.4simi-10fold.csv')
+SOURCE = KCAT_CSV
 
 def sha(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
