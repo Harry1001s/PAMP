@@ -35,5 +35,5 @@ distance-penalized projection onto the legal single-substitution set.
 - `export_results_no_esm_lm.py`, `plot_boxplots_no_esm_lm.py` — figure/table export for
   the method comparison excluding the ESM2 masked-LM baseline.
 
-Depends on `residual_predictor/residual_model.py` (`load_predictor`) for the scoring
-objective, and on the Extra Trees model trained in `extra_trees_baseline/`.
+Depends on `method/residual_predictor/residual_model.py` (`load_predictor`) for the scoring
+objective, and on the Extra Trees model trained in `experiments/extra_trees_baseline/`.

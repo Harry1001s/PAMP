@@ -3,7 +3,7 @@
 Following UniKP's regression framework: Extra Trees fit on the concatenated
 1,280-dimensional ESM2 protein representation and 1,024-dimensional UniKP substrate
 representation (2,304 features). Reported as a turnover-prediction baseline in Table I,
-and used in `../pamp_search/` as the independent, non-differentiable re-scorer for
+and used in `../method/search/` as the independent, non-differentiable re-scorer for
 §Transfer to an Independent Predictor (Table III) — it shares no parameters or gradients
 with the Residual Predictor that guides PAMP.
 

@@ -6,6 +6,11 @@
 No test-based selection. Existing caches are used as-is, including the known
 UniKP batch-slot defect; corrected-cache experiments require a new protocol.
 """
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import DATA_ROOT, KCAT_CSV, REVISION_ROOT
 import argparse, hashlib, json, pickle, time
 from pathlib import Path
 import numpy as np
@@ -15,8 +20,8 @@ from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from scipy.stats import pearsonr, spearmanr
 
-REV=Path('/root/paper_revision/20260910T034935Z')
-PROJ=Path('/root/rivermind-data')
+REV=REVISION_ROOT
+PROJ=DATA_ROOT
 
 def sha(p):
     d=hashlib.sha256()
@@ -43,7 +48,7 @@ def main():
     dest=args.out.resolve()
     if REV not in dest.parents or dest.exists():p.error('Choose a NEW output directory inside this revision root.')
     contract=json.loads((PROJ/'experiment_compact_topk_attack_v1/attack_contract.json').read_text())
-    paths={'source':Path('/root/kcat-data_0.4simi-10fold.csv'),
+    paths={'source':KCAT_CSV,
         'split':PROJ/'experiment_mean/split_indices.npz',
         'protein':PROJ/'catpro_esm2_mean_pooling/protein_mean_embs.pkl',
         'smiles':PROJ/'experiment_mean/smiles_unikp1024.npy',

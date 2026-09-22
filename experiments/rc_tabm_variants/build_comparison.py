@@ -1,3 +1,8 @@
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import DATA_ROOT, REVISION_ROOT
 from pathlib import Path
 import json,hashlib,shutil
 import numpy as np
@@ -6,7 +11,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from openpyxl.styles import Font,PatternFill
-ROOT=Path('/root/rivermind-data'); PAPER=Path('/root/paper_revision/20260910T034935Z');OUT=Path(__file__).resolve().parent
+ROOT=DATA_ROOT; PAPER=REVISION_ROOT;OUT=Path(__file__).resolve().parent
 sources={}; records=[]
 MET=['R2','PCC','Spearman','MSE','RMSE','MAE']
 def track(p):

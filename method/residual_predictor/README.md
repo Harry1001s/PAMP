@@ -1,7 +1,7 @@
 # k_cat Residual Predictor / RC-TabM (§III.B)
 
 The complete, differentiable objective `F(h,H,s) = f(h,s) + C(H,s)` (Eq. 2) used to
-guide PAMP: a frozen Original Predictor (`f`, see `../original_predictor/`) plus a
+guide PAMP: a frozen Original Predictor (`f`, see `../method/original_predictor/`) plus a
 substrate-conditioned residue-level correction learned on top of it.
 
 - `residual_model.py` — `LocalCorrection` is the Residue-Conditioned TabM (RC-TabM)
@@ -9,7 +9,7 @@ substrate-conditioned residue-level correction learned on top of it.
   (Bahdanau-style, masking padding), followed by a `TabM` head (`k=16` members,
   parameter-efficient ensembling, vendored under `../third_party/tabm/tabm.py`).
   `ResidualPredictor` combines this with the frozen `ImprovedKcatEnsemble` global branch
-  (`../original_predictor/improved_kcat_ensemble.py`); `gamma` is the learned scale in
+  (`../method/original_predictor/improved_kcat_ensemble.py`); `gamma` is the learned scale in
   Eq. 2, initialized to zero so the model starts equivalent to the Original Predictor.
 - `run.py` — training driver: optimizes RC-TabM and `gamma` with AdamW against the
   standardized-target squared error while the global branch stays frozen; selects the

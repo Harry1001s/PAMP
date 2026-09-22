@@ -21,7 +21,7 @@ baseline in its own right (Table I: "Original Predictor (ESM2)").
 - `improved_kcat_ensemble.py` — `ImprovedKcatEnsemble`, the complete Original Predictor:
   combines the frozen `MeanKcatEnsemble` (two-head average) with the three frozen
   compact-MLP checkpoints using the fixed weights in Eq. 1. This is the object loaded as
-  the frozen global branch inside `../residual_predictor/residual_model.py`.
+  the frozen global branch inside `../method/residual_predictor/residual_model.py`.
 - `generate_full_esm2_embeddings_pkl.py`, `generate_unikp_smiles1024_fixed.py` —
   precompute the frozen ESM2 mean protein embeddings and UniKP SMILES-Transformer
   substrate embeddings that all of the above heads are trained on.

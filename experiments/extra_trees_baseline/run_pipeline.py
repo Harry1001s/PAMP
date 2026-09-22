@@ -1,3 +1,8 @@
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import DATA_MANIFEST, SPLIT_INDICES
 from pathlib import Path
 import subprocess,sys,json,datetime,os
 import numpy as np
@@ -24,7 +29,7 @@ def run():
  result=pd.DataFrame(rows);result.to_csv(R/'comparison_summary.csv',index=False)
  # Independently reconstruct test metrics and check pair/row alignment for the quick exports.
  from sklearn.metrics import r2_score,mean_squared_error,mean_absolute_error
- splits=np.load('/root/rivermind-data/experiment_mean/split_indices.npz');manifest=pd.read_csv('/root/rivermind-data/experiment_mean/data_manifest.csv')
+ splits=np.load(str(SPLIT_INDICES));manifest=pd.read_csv(str(DATA_MANIFEST))
  for dim in [2304,2471]:
   d=pd.read_csv(R/f'features_{dim}/test_predictions_seed_42.csv');assert np.array_equal(d.row_id,splits['test_idx'])
   assert np.array_equal(d.pair_key,manifest.iloc[d.row_id].pair_key)

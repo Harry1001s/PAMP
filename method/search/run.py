@@ -2,6 +2,11 @@
 
 Extra Trees is explicitly a transfer evaluator, never a white-box target.
 """
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import EXTRA_TREES_MODEL, KCAT_CSV
 import argparse
 import hashlib
 import json
@@ -14,7 +19,7 @@ import pandas as pd
 from attack_adapter import Engine,AttackRow,ROOT,RES,METHODS,mutate
 
 HERE=Path(__file__).resolve().parent
-ET=Path('/root/paper_revision/20260910T034935Z/extra_trees_quick_v1/features_2304/model_seed_42.joblib')
+ET=EXTRA_TREES_MODEL
 
 
 def sha(path):
@@ -43,7 +48,7 @@ def load_data(dataset,cohort_path=None,min_length=None,max_length=None):
     else:
         d=ROOT/'experiment_mean'
         split=np.load(d/'split_indices.npz')['test_idx']
-        data=pd.read_csv('/root/kcat-data_0.4simi-10fold.csv')
+        data=pd.read_csv(str(KCAT_CSV))
         if cohort_path:
             frame=pd.read_csv(cohort_path)
             split=frame.row_id.to_numpy(dtype=int)
@@ -52,7 +57,7 @@ def load_data(dataset,cohort_path=None,min_length=None,max_length=None):
             frame=pd.DataFrame({'row_id':split,'sequence_clean':data.Sequence.iloc[split].to_numpy()})
         with (ROOT/'catpro_esm2_mean_pooling/protein_mean_embs.pkl').open('rb') as f:p=np.asarray(pickle.load(f))[split]
         s=np.load(d/'smiles_unikp1024.npy')[split]
-        paths=[Path('/root/kcat-data_0.4simi-10fold.csv'),d/'split_indices.npz',d/'smiles_unikp1024.npy',ROOT/'catpro_esm2_mean_pooling/protein_mean_embs.pkl']
+        paths=[KCAT_CSV,d/'split_indices.npz',d/'smiles_unikp1024.npy',ROOT/'catpro_esm2_mean_pooling/protein_mean_embs.pkl']
         if cohort_path:paths.append(Path(cohort_path))
     if dataset!='catapro' and cohort_path:raise ValueError('Explicit cohort currently supports CataPro only')
     lengths=frame.sequence_clean.str.len().to_numpy()

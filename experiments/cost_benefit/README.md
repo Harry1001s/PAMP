@@ -6,7 +6,7 @@ L, three gradient evaluations plus one encoding of the selected mutant."
 
 - `run_compact_topk_adversarial_attack.py` — standalone, single-file implementation of
   the PAMP / HotFlip / Random mutation search (an earlier, self-contained counterpart to
-  `../pamp_search/attack_adapter.py`) used here as the object under comparison against
+  `../method/search/attack_adapter.py`) used here as the object under comparison against
   exhaustive enumeration.
 - `run_pamp_hotflip_enum_costbenefit.py` — runs both the exhaustive 19L single-substitution
   scan and PAMP/HotFlip on the same cohort and records wall-clock cost alongside the

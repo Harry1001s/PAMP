@@ -1,4 +1,9 @@
 """Frozen ESM2 extraction matching the existing mean pipeline exactly."""
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import ESM2_CHECKPOINT
 import argparse
 import shutil
 import time
@@ -17,7 +22,7 @@ def main(limit=None):
     contract=dict(source_sha256=sha(SOURCE),split_sha256=sha(SPLIT),model='esm2_t33_650M_UR50D',layer=33,
         dtype='float16',lengths=[len(s) for s in sequences],sequence_sha256=[hashlib.sha256(s.encode()).hexdigest() for s in sequences],
         row_mapping=mapping.tolist(),chunking='non-overlapping <=1022; BOS/EOS excluded; full float32 frozen ESM2 inference',
-        checkpoint_sha256=sha(Path('/root/.cache/torch/hub/checkpoints/esm2_t33_650M_UR50D.pt')))
+        checkpoint_sha256=sha(ESM2_CHECKPOINT))
     if (cache/'index.json').exists():
         assert json.loads((cache/'index.json').read_text())==contract
     else:

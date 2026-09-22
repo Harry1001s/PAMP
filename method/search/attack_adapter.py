@@ -3,6 +3,11 @@
 The chunkwise vector-Jacobian product is the chain rule for the full predictor;
 it does not detach the local branch or replace full residues by their mean.
 """
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import DATA_ROOT, ESM2_CHECKPOINT, add_module_paths, RESIDUAL_DIR
 import argparse
 import sys
 from pathlib import Path
@@ -10,9 +15,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path('/root/rivermind-data')
+ROOT = DATA_ROOT
 RES = ROOT/'experiments/catapro_residual_condpool'
-sys.path.insert(0,str(RES/'scripts'))
+add_module_paths(RESIDUAL_DIR)
 from residual_model import load_predictor
 
 AA = 'ACDEFGHIKLMNPQRSTVWY'
@@ -52,7 +57,7 @@ class Engine:
         self.model=load_predictor(RES/'checkpoints/best.pt',device=device).requires_grad_(False)
         import esm
         with torch.serialization.safe_globals([argparse.Namespace]):
-            self.esm,self.alphabet=esm.pretrained.load_model_and_alphabet_local('/root/.cache/torch/hub/checkpoints/esm2_t33_650M_UR50D.pt')
+            self.esm,self.alphabet=esm.pretrained.load_model_and_alphabet_local(str(ESM2_CHECKPOINT))
         self.esm=self.esm.to(device).eval().requires_grad_(False)
         self.convert=self.alphabet.get_batch_converter()
         self.aa_ids=torch.tensor([self.alphabet.get_idx(a) for a in AA],device=device)

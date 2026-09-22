@@ -16,6 +16,13 @@ All methods receive the same one or five exact predictor queries. PAMP/HotFlip
 also use a white-box gradient, so equal query count is not equal wall-clock cost.
 """
 from __future__ import annotations
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import (ESM2_CHECKPOINT, KCAT_CSV, add_module_paths,
+                        ORIGINAL_PREDICTOR_DIR)
+add_module_paths(ORIGINAL_PREDICTOR_DIR)
 
 import argparse
 import gc
@@ -39,14 +46,14 @@ from improved_kcat_ensemble import ImprovedKcatEnsemble
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / 'experiment_compact_topk_attack_v1'
-SOURCE = Path('/root/kcat-data_0.4simi-10fold.csv')
+SOURCE = KCAT_CSV
 MANIFEST = ROOT / 'experiment_compact_improvements/improved_ensemble_manifest.json'
 SPLIT = ROOT / 'experiment_mean/split_indices.npz'
 DATA_MANIFEST = ROOT / 'experiment_mean/data_manifest.csv'
 PROTEIN = ROOT / 'catpro_esm2_mean_pooling/protein_mean_embs.pkl'
 SMILES = ROOT / 'experiment_mean/smiles_unikp1024.npy'
 MACCS = ROOT / 'experiment_compact_improvements/maccs.npy'
-WEIGHTS = Path('/root/.cache/torch/hub/checkpoints/esm2_t33_650M_UR50D.pt')
+WEIGHTS = ESM2_CHECKPOINT
 METHODS = ('pamp', 'hotflip', 'esm_lm', 'random')
 CANONICAL_AAS = tuple('ACDEFGHIKLMNPQRSTVWY')
 CANONICAL_SET = set(CANONICAL_AAS)

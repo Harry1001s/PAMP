@@ -1,4 +1,9 @@
 """Build a source-grounded manuscript revision snapshot without changing experiments."""
+import sys as _sys, pathlib as _pl
+for _c in _pl.Path(__file__).resolve().parents:
+    if (_c / 'pamp_paths.py').exists():
+        _sys.path.insert(0, str(_c)); break
+from pamp_paths import DATA_ROOT, KCAT_CSV, PROTEIN_SUBSTRATE_V1
 import datetime
 import hashlib
 import json
@@ -7,13 +12,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT=Path('/root/rivermind-data')
+ROOT=DATA_ROOT
 TAB=ROOT/'experiments/catapro_tabm_small'
 RES=ROOT/'experiments/catapro_residual_condpool'
 EXT=ROOT/'experiment_brenda_external/residual_condpool_v1'
 PAMP=ROOT/'experiments/pamp_multi_predictor_v1'
 ACTIVE=PAMP/'catapro_test_2697_residual_a3_distinct'
-OLD=Path('/root/paper_revision/20260910T034935Z/pamp_protein_substrate_v1')
+OLD=PROTEIN_SUBSTRATE_V1
 SCMR=ROOT/'experiment_scmr_kcat_v0'
 OUT=ROOT/'RESULTS_FOR_PAPER_REVISION_20260915.md'
 
@@ -99,7 +104,7 @@ def main():
 | Test | 2766 |
 | 合计 | 27658 |
 
-原始数据：{link(Path('/root/kcat-data_0.4simi-10fold.csv'))}。划分：{link(ROOT/'experiment_mean/split_indices.npz')}。行级清单：{link(ROOT/'experiment_mean/data_manifest.csv')}。
+原始数据：{link(KCAT_CSV)}。划分：{link(ROOT/'experiment_mean/split_indices.npz')}。行级清单：{link(ROOT/'experiment_mean/data_manifest.csv')}。
 
 目标为 y = log₂[kcat/(1 s⁻¹)]。训练集目标均值为 1.727250987598611，标准差为 5.088255379714057。特征及目标 scaler 只在训练集拟合。这里的固定划分不能自动解释为蛋白序列或同源簇互斥划分；相同/相似蛋白跨集合的限制需要保留。
 
