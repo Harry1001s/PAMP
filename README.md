@@ -38,20 +38,6 @@ the authoritative mapping:
 | `B2_random` | Random |
 | `B0_esm_lm` | *Not reported in the paper.* An ESM2 masked-language-model scoring baseline was implemented and run alongside the others but is not one of the methods presented in the paper; treat it as exploratory, not as part of the reported results. |
 
-## Provenance
-
-Source workspace, for reference (not part of this repository):
-- Most recent/canonical results: `rivermind-data/experiments/pamp_multi_predictor_v1/`.
-- Revision package with manuscript, figures, and evidence tables:
-  `paper_revision/20260910T034935Z/`.
-- A handful of shared, lower-level modules (the Original Predictor components,
-  structural-validation pipeline, and cost-benefit scripts) lived at the root of
-  `rivermind-data/` rather than under `experiments/`; they are reproduced here under
-  `method/original_predictor/`, `experiments/structural_validation/`, and `exploratory/cost_benefit/`.
-
-`docs/provenance/*.README.md` are the READMEs that shipped with each corresponding
-experiment directory in the source workspace, kept verbatim for context.
-
 ## Setup
 
 `requirements.txt` lists the Python dependencies these scripts import (PyTorch, ESM2 via
