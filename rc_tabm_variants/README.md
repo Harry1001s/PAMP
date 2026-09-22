@@ -9,8 +9,7 @@ Standalone CondPool-TabM."
   `../residual_predictor/`'s conventions), `cache_reader.py`, `extract_residue_cache.py`,
   `finalize_cache.py` (build/verify the cached full-residue ESM2 representations used by
   every residue-conditioned variant), `sanity_check.py`, `compare_results.py`,
-  `evaluate_baseline_train.py`, `evaluate_stopped_run.py`, `audit_existing_experiment.py`,
-  `finish_in_background.py`, and `verify_*.py` deliverable checks.
+  `evaluate_baseline_train.py`, and `verify_*.py` deliverable checks.
 - `tabm_condpool.json`, `tabm_mean.json` — configs for the Standalone CondPool-TabM and
   Mean-TabM variants (a `tabm_mean_k32` variant with a larger ensemble was also run from
   the same config with `k` overridden).
