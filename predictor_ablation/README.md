@@ -9,10 +9,9 @@ ESM2, and the final Residual Predictor).
   two-modality predictor architectures, incl. the `ConcatPredictor` fusion variants),
   `config.py`, `data.py`, `preprocessing.py`, `training.py`, `metrics.py`,
   `parameter_budget.py`, `registry.py`, `reproducibility.py`.
-- `scripts/` — entry points: `run_smoke_test.py`, `count_parameters.py` (parameter-count
-  accounting, e.g. the "8,507,926 prediction-head parameters" figure in §Model Complexity
-  Analysis), `audit_data.py`, `verify_brenda_source.py`, `prepare_protocol.py`,
-  `inspect_project.py`, `export_audit_findings.py`.
+- `scripts/` — entry points: `count_parameters.py` (parameter-count accounting, e.g. the
+  "8,507,926 prediction-head parameters" figure in §Model Complexity Analysis),
+  `verify_brenda_source.py`, `prepare_protocol.py`.
 - `tests/test_correctness.py` — correctness tests for the training/evaluation pipeline.
 
 Only code is included; `runs/` (trained checkpoints and audit logs from the original

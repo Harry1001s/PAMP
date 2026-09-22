@@ -34,8 +34,6 @@ distance-penalized projection onto the legal single-substitution set.
   retained-gain figures in Table III.
 - `export_results_no_esm_lm.py`, `plot_boxplots_no_esm_lm.py` — figure/table export for
   the method comparison excluding the ESM2 masked-LM baseline.
-- `launch_catapro_a3.py`, `launch_remaining.py` — job launchers for running the above
-  over the full cohort in batches/background processes.
 
 Depends on `residual_predictor/residual_model.py` (`load_predictor`) for the scoring
 objective, and on the Extra Trees model trained in `extra_trees_baseline/`.
