@@ -14,7 +14,7 @@ Standalone CondPool-TabM."
 - `tabm_condpool.json`, `tabm_mean.json` — configs for the Standalone CondPool-TabM and
   Mean-TabM variants (a `tabm_mean_k32` variant with a larger ensemble was also run from
   the same config with `k` overridden).
-- `vendor/tabm.py`, `vendor/rtdl_num_embeddings.py` — vendored third-party TabM
+- `../third_party/tabm/tabm.py`, `../third_party/tabm/rtdl_num_embeddings.py` — vendored third-party TabM
   implementation (Gorishniy et al., *TabM: Advancing Tabular Deep Learning with
   Parameter-Efficient Ensembling*, ICLR 2025, `yandex-research/tabm`), used by both this
   directory and `../residual_predictor/residual_model.py`. Original license header
@@ -23,4 +23,4 @@ Standalone CondPool-TabM."
   RC-TabM iterations and the Mean-TabM / CondPool-TabM variants into a single comparison
   table.
 
-See `ORIGINAL_README.md` for the original experiment-directory notes.
+See [`../docs/provenance/rc_tabm_variants.README.md`](../docs/provenance/rc_tabm_variants.README.md) for the original experiment-directory notes.

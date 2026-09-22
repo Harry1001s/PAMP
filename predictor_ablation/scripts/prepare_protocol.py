@@ -11,8 +11,8 @@ import yaml
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
-from predictor_ablation.data import load_manifest
-from predictor_ablation.reproducibility import atomic_json, environment_snapshot, sha256_json
+from src.data import load_manifest
+from src.reproducibility import atomic_json, environment_snapshot, sha256_json
 
 
 def main():

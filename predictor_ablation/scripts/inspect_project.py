@@ -12,7 +12,7 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
-from predictor_ablation.reproducibility import atomic_json, sha256_file, sha256_json
+from src.reproducibility import atomic_json, sha256_file, sha256_json
 
 
 def args():

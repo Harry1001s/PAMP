@@ -8,8 +8,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
-from predictor_ablation.data import audit_manifest, derive_protein_pooling, load_manifest
-from predictor_ablation.reproducibility import atomic_json
+from src.data import audit_manifest, derive_protein_pooling, load_manifest
+from src.reproducibility import atomic_json
 
 
 def args():

@@ -12,9 +12,9 @@ import torch
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
-from predictor_ablation.config import base_config
-from predictor_ablation.reproducibility import atomic_json
-from predictor_ablation.training import train_one
+from src.config import base_config
+from src.reproducibility import atomic_json
+from src.training import train_one
 
 
 def main():
