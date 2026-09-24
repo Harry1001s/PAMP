@@ -33,15 +33,6 @@ The first search round returns five ranked substitutions. Top1 follows the first
 
 The fixed partition contains 22,126 training, 2,766 validation, and 2,766 test enzyme–substrate pairs. Mutation design uses the 2,754 test pairs with sequences longer than 80 residues, representing 2,391 unique enzymes. External prediction evaluation contains 3,794 BRENDA records with exact sequences absent from the CataPro-derived source.
 
-| PAMP endpoint | Mean predicted change, log₂ units | Positive fraction |
-|---|---:|---:|
-| First-round Top1 | 0.1795 | 84.64% |
-| First-round best-of-Top5 | 0.3809 | 99.49% |
-| Two-round Top1, cumulative | 0.3016 | 87.22% |
-| Five-round Top1, cumulative | 0.5631 | 88.42% |
-
-Means are weighted by enzyme–substrate record. Positive fractions use a change strictly greater than zero. Paired comparisons align records by `row_id`; bootstrap resampling groups records by exact reference sequence.
-
 ## Reproduce the reported tables
 
 The released tables can be analyzed on CPU using NumPy and pandas:
