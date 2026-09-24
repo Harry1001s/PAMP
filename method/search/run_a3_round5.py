@@ -1,4 +1,4 @@
-"""Continue frozen A3 Top1 trajectories to five distinct substitutions on 2754 rows."""
+"""Continue PAMP Top1 trajectories to five distinct substitutions."""
 import argparse
 import json
 import re
@@ -28,22 +28,17 @@ def reconstruct(sequence,edits):
 def inputs():
     assert json.loads((BASE/'verification.json').read_text())['status']=='PASS'
     cohort,p,s,paths=load_data('catapro',str(BASE/'cohort.csv'))
-    assert len(cohort)==2754
     f=pd.read_csv(BASE/'endpoint_results.csv',float_precision='round_trip')
     f=f[f.method.eq(METHOD)]
     previous={ep:f[f.endpoint.eq(ep)].set_index('row_id') for ep in ['round1_top1','round2_top1']}
     for frame in previous.values():
         assert frame.index.is_unique and set(frame.index)==set(cohort.row_id)
         assert frame.source.eq('residual').all() and frame.evaluator.eq('residual').all()
-    for run in ['catapro_test_2697_residual_a3_distinct','catapro_test_long58_residual_distinct']:
-        contract=json.loads((HERE/run/'contract.json').read_text())
-        for path in [HERE/'attack_adapter.py',RES/'checkpoints/best.pt']:
-            assert sha(path)==contract['input_hashes'][str(path)]
     return cohort,p,s,previous,paths
 
 def prepare(cohort,paths):
-    OUT.mkdir(exist_ok=True)
-    contract=dict(n=2754,method=METHOD,source='residual',rounds=5,additional_rounds=3,budget_per_round=1,site_policy='five distinct sites',
+    OUT.mkdir(parents=True,exist_ok=True)
+    contract=dict(n=len(cohort),method=METHOD,source='residual',rounds=5,additional_rounds=3,budget_per_round=1,site_policy='five distinct sites',
         continuation='Start from saved round2 Top1; retain original WT anchors; recompute full A3 gradient each round on current mutant; block all prior sites in path updates and final ranking; always accept even negative changes',
         stability='Round3/4/5-minus-previous mean/median/positive fraction; strict improvement at every step; paired sequence-cluster bootstrap of record-weighted mean',
         input_hashes={str(q):sha(q) for q in paths+[BASE/'endpoint_results.csv',BASE/'verification.json',HERE/'attack_adapter.py',Path(__file__),RES/'checkpoints/best.pt']})
@@ -68,7 +63,7 @@ def bootstrap_mean(values,sequence_ids):
 def report(cohort):
     records=[json.loads((OUT/'rows'/f'{rid}.json').read_text()) for rid in cohort.row_id]
     f=pd.DataFrame(records)
-    assert len(f)==2754 and f.row_id.is_unique
+    assert len(f)==len(cohort) and f.row_id.is_unique
     seqmap=cohort.set_index('row_id').sequence_clean
     for r in f.itertuples():
         final,positions=reconstruct(seqmap[r.row_id],r.edits)
@@ -95,7 +90,7 @@ def report(cohort):
     with pd.ExcelWriter(OUT/'a3_five_round_results.xlsx') as writer:
         summary.to_excel(writer,sheet_name='summary',index=False)
         f.to_excel(writer,sheet_name='trajectories',index=False)
-    text='# A3 五轮不同位点 Top1 攻击\n\n2754 条配对记录；沿用前两轮结果，第 3–5 轮每轮始终接受一个新位点突变。delta 表示相对 WT 的累计变化，increment 表示相对上一轮的变化。\n\n'
+    text=f'# A3 五轮不同位点 Top1 攻击\n\n{len(cohort)} 条配对记录；沿用前两轮结果，第 3–5 轮每轮始终接受一个新位点突变。delta 表示相对 WT 的累计变化，increment 表示相对上一轮的变化。\n\n'
     text+='| 轮次 | 平均累计 Δlog2 | 累计提升比例 | 平均本轮增量 | 本轮提升比例 | 本轮均值 95% CI |\n|---|---:|---:|---:|---:|---|\n'
     for r in [1,2,3,4,5]:
         d=summary.query("cohort == 'all' and round == @r and metric == 'delta'").iloc[0]
@@ -148,7 +143,12 @@ def main(args):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--prepare-only',action='store_true');parser.add_argument('--report-only',action='store_true')
-    try:main(parser.parse_args())
+    parser.add_argument('--base',type=Path,required=True,help='Two-round search output directory')
+    parser.add_argument('--out',type=Path,required=True)
+    args=parser.parse_args()
+    BASE=args.base
+    OUT=args.out
+    try:main(args)
     except Exception:
         import traceback
         write(OUT/'status.json',dict(stage='failed',error=traceback.format_exc()));raise

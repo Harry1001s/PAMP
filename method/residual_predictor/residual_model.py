@@ -3,17 +3,17 @@ import sys as _sys, pathlib as _pl
 for _c in _pl.Path(__file__).resolve().parents:
     if (_c / 'pamp_paths.py').exists():
         _sys.path.insert(0, str(_c)); break
-from pamp_paths import (add_module_paths, RC_TABM_SCRIPTS, TABM_VENDOR,
+from pamp_paths import (add_module_paths, RESIDUAL_DIR, TABM_VENDOR,
                         ORIGINAL_PREDICTOR_DIR)
 import sys
 from pathlib import Path
 
-add_module_paths(RC_TABM_SCRIPTS, TABM_VENDOR, ORIGINAL_PREDICTOR_DIR)
-from common import ROOT,BASE,sha,dump,load_data,metrics
+add_module_paths(RESIDUAL_DIR, TABM_VENDOR, ORIGINAL_PREDICTOR_DIR)
+from common import ROOT,BASE,SCREEN,EXPERIMENT,CONFIG,sha,dump,load_data,metrics
 import torch
 from torch import nn
 from tabm import TabM
-from improved_kcat_ensemble import ImprovedKcatEnsemble
+from ensemble import ImprovedKcatEnsemble
 
 
 class LocalCorrection(nn.Module):

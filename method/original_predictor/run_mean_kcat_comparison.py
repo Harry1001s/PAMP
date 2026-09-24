@@ -3,7 +3,7 @@ import sys as _sys, pathlib as _pl
 for _c in _pl.Path(__file__).resolve().parents:
     if (_c / 'pamp_paths.py').exists():
         _sys.path.insert(0, str(_c)); break
-from pamp_paths import KCAT_CSV
+from pamp_paths import KCAT_CSV, DATA_ROOT
 import argparse, hashlib, json, math, pickle, random, time
 from pathlib import Path
 import numpy as np
@@ -14,7 +14,7 @@ from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from kcat_models import build_predictor
 
-ROOT = Path(__file__).resolve().parent
+ROOT = DATA_ROOT
 SOURCE = KCAT_CSV
 
 def sha(p):
@@ -28,6 +28,16 @@ def metrics(y, p):
                 MAE=float(mean_absolute_error(y,p)), PCC=float(pearsonr(y,p)[0]),
                 Spearman=float(spearmanr(y,p)[0]))
 
+ESM_ALLOWED = set("ACDEFGHIKLMNPQRSTVWYXBZUO")
+import re
+
+def clean_sequence(value) -> str:
+    """Normalize a sequence while retaining ESM-supported ambiguity tokens."""
+    seq = str(value).strip().upper()
+    seq = re.sub(r"\s+", "", seq)
+    seq = seq.replace("*", "")
+    return "".join(aa if aa in ESM_ALLOWED else "X" for aa in seq)
+
 def prepare(out, device):
     df = pd.read_csv(SOURCE)
     meta = json.loads((ROOT/'catpro_esm2_mean_pooling/embedding_metadata.json').read_text())
@@ -35,7 +45,6 @@ def prepare(out, device):
     mapping = pd.read_csv(ROOT/'catpro_esm2_mean_pooling/row_mapping.csv')
     assert np.array_equal(mapping.row_index, np.arange(len(df)))
     assert np.array_equal(mapping.sample_id, df.iloc[:,0])
-    from generate_full_esm2_embeddings_pkl import clean_sequence
     sequences = df.Sequence.str.replace(r'\s+', '', regex=True).str.upper()
     changed = [i for i,s in enumerate(sequences) if clean_sequence(s) != s]
     if changed:
@@ -96,7 +105,7 @@ def prepare(out, device):
         assert json.loads((out/'feature_manifest.json').read_text()) == feature_manifest
         smiles=np.load(smiles_path)
     else:
-        from generate_unikp_smiles1024_fixed import load_unikp_modules, load_vocab_compat, get_ids, encode_batch_unikp
+        from substrate_features import load_unikp_modules, load_vocab_compat, get_ids, encode_batch_unikp
         bv, Trfm, split_fn=load_unikp_modules(ROOT/'UniKP')
         vocab=load_vocab_compat(ROOT/'UniKP/vocab.pkl',bv)
         model=Trfm(len(vocab),256,len(vocab),4).to(device).eval()

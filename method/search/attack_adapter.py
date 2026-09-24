@@ -21,7 +21,7 @@ add_module_paths(RESIDUAL_DIR)
 from residual_model import load_predictor
 
 AA = 'ACDEFGHIKLMNPQRSTVWY'
-METHODS = ['A3_fw_avg_pamp','A0_pamp','A2_fw_avg','A1_hotflip','B0_esm_lm','B2_random']
+METHODS = ['A3_fw_avg_pamp','A0_pamp','A2_fw_avg','A1_hotflip','B2_random']
 
 
 def rank(scores, sequence, count=5, per_site=2, blocked_positions=()):
@@ -165,7 +165,7 @@ class AttackRow:
         return torch.stack(gradients).mean(0),trace
 
     def proposals(self,sequence,target,seed,count=5,methods=METHODS,blocked_positions=()):
-        needs_gradient=any(m not in ('B0_esm_lm','B2_random') for m in methods)
+        needs_gradient=any(m != 'B2_random' for m in methods)
         current=self.state(sequence,target,gradient=needs_gradient)
         scores={};trace=[]
         if needs_gradient:
@@ -175,9 +175,5 @@ class AttackRow:
             avg,trace=self.path(sequence,target,current,blocked_positions)
             scores['A3_fw_avg_pamp']=self.scores(sequence,avg)
             scores['A2_fw_avg']=self.scores(sequence,avg,False)
-        lm=current['logits'].cpu().numpy().copy()
-        for i,a in enumerate(sequence):
-            if a in AA:lm[i]-=lm[i,AA.index(a)]
-        scores['B0_esm_lm']=lm
         scores['B2_random']=np.random.default_rng(seed).random((len(sequence),20))
         return {m:rank(scores[m],sequence,count,blocked_positions=blocked_positions) for m in methods},current['value'],trace

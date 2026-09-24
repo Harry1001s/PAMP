@@ -49,10 +49,6 @@ ESM2_CHECKPOINT = _path(
     Path.home() / ".cache/torch/hub/checkpoints/esm2_t33_650M_UR50D.pt",
 )
 
-# US-align binary used by the structural validation pipeline; a bare name is
-# resolved through PATH.
-USALIGN = os.environ.get("PAMP_USALIGN", "USalign")
-
 # Derived locations used by more than one script.
 EXPERIMENT_MEAN = DATA_ROOT / "experiment_mean"
 SPLIT_INDICES = EXPERIMENT_MEAN / "split_indices.npz"
@@ -70,7 +66,6 @@ EXTRA_TREES_MODEL = (
 SEARCH_DIR = REPO_ROOT / "method/search"
 RESIDUAL_DIR = REPO_ROOT / "method/residual_predictor"
 ORIGINAL_PREDICTOR_DIR = REPO_ROOT / "method/original_predictor"
-RC_TABM_SCRIPTS = REPO_ROOT / "experiments/rc_tabm_variants/scripts"
 TABM_VENDOR = REPO_ROOT / "third_party/tabm"
 
 
