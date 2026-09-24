@@ -1,0 +1,38 @@
+{
+  "type": "fixed architecture output average; differentiable log2(kcat)",
+  "family_weights": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+  ],
+  "new_seed_weights": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+  ],
+  "old_manifest": {
+    "path": "/root/rivermind-data/model_improvement_analysis/random_ensemble_manifest.json",
+    "sha256": "2ebf2aafda0bf829b7a7b15a0d0760e72a4c8f92c43bfab4ff5afbeb10cf68aa"
+  },
+  "new_checkpoints": [
+    {
+      "path": "/root/rivermind-data/experiment_compact_improvements/search/std_w128_d0.1_wd0.001/best.pt",
+      "sha256": "13e0f81e6d49ad4b21b85a2d174487c6ebd1f61f92feb9ac9377f7acb867fe66"
+    },
+    {
+      "path": "/root/rivermind-data/experiment_compact_improvements/esm_plain/seed_2024/best.pt",
+      "sha256": "f59b1c5199e3bdbc2ccf651aa460d4633a7a57bdf7b774d3bc65a0132daeac6d"
+    },
+    {
+      "path": "/root/rivermind-data/experiment_compact_improvements/esm_plain/seed_3407/best.pt",
+      "sha256": "0c2685693a0aac932dae2f63b8e3fe5c6f0225089fcb269b5615d7fb09bf2393"
+    }
+  ],
+  "source_sha256": "4410d997110322b69524dedc9d236c20c448cf15657ab9d3888592c9ebfa97a5",
+  "split_sha256": "b4731d51ca161e97f60d4bcbad174962f63d8b2e0a76233b227c5778e5346043",
+  "protein_features": "existing ESM2 layer33 mean, 1280 dimensions",
+  "substrate_features": "existing UniKP 1024 dimensions",
+  "selection": {
+    "rule": "User-fixed protein and substrate inputs only; preserve existing ESM2 heads, compact seeds and equal family weights; no selection on current test or BRENDA outcomes"
+  }
+}

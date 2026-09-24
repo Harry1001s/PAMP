@@ -1,0 +1,19 @@
+{
+  "type": "fixed output ensemble",
+  "weights": [
+    0.5,
+    0.5
+  ],
+  "output": "log2(kcat), unstandardized",
+  "training": "existing frozen seed_42 models; no refitting; no weight search",
+  "checkpoints": [
+    {
+      "path": "/root/rivermind-data/experiment_mean/mean_cls_transformer/seed_42/best.pt",
+      "sha256": "85b888592bba8c1ae0d1b9f7f2ef0854c1a1a83af7593a07e9323f7727b91f3a"
+    },
+    {
+      "path": "/root/rivermind-data/experiment_mean/mean_interaction_mlp/seed_42/best.pt",
+      "sha256": "a5d3f14270435bee2f717cd02cf071640becf01cd574ffa0bb0f989e43afa8d3"
+    }
+  ]
+}
