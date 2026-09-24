@@ -16,7 +16,7 @@ env/
 .DS_Store
 Thumbs.db
 
-# Model artifacts / caches / large data (not tracked in this code-only repository)
+# Model checkpoints and feature caches
 *.pt
 *.pth
 *.ckpt

@@ -1,20 +1,62 @@
 # PAMP
 
-Continuous-to-Discrete Mutation Projection for Enzyme Engineering.
+**Continuous-to-Discrete Mutation Projection for Enzyme Engineering**
 
-PAMP searches enzyme substitutions using averaged embedding gradients and a distance-penalized projection. The predictor combines a frozen global ensemble with a substrate-conditioned RC-TabM correction branch.
+Proximal Adversarial Mutation Projection (PAMP) selects amino-acid substitutions by averaging input gradients at three embedding states and projecting the resulting direction onto legal substitutions with a squared-distance penalty. A substrate-conditioned Residual Predictor supplies the turnover objective.
 
-## Code
+## Method
 
-| Directory | Contents |
+The Original Predictor combines an attention-based CLS head, an interaction MLP, and three compact MLPs. Its output is
+
+$$
+f(h,s)=\frac{f_C(h,s)+f_I(h,s)}{3}+\frac{1}{9}\sum_{j=1}^{3}f_{M,j}(h,s).
+$$
+
+The Residual Predictor adds the mean of 16 Residue-Conditioned TabM (RC-TabM) members, scaled by a learned gate and the training-target standard deviation. The protein encoder is ESM2-650M; substrate representations are 1,024-dimensional UniKP features. Predictions are expressed as log₂(kcat / (1 s⁻¹)).
+
+The first search round returns five ranked substitutions. Top1 follows the first-ranked candidate; best-of-Top5 selects the candidate with the highest Residual Predictor score. Sequential rounds update the sequence and select a previously unmodified position. Extra Trees re-scores the selected mutants for transfer evaluation.
+
+## Repository
+
+| Location | Contents |
 |---|---|
-| [method/search](method/search/) | PAMP, Single-gradient, HotFlip, Random, and sequential mutation search |
-| [method/original_predictor](method/original_predictor/) | CLS head, interaction MLP, compact MLPs, ensemble, and training |
-| [method/residual_predictor](method/residual_predictor/) | RC-TabM model, residue batching, and training |
+| [method/search](method/search/) | PAMP, HotFlip, component ablations, Random, and sequential search |
+| [method/original_predictor](method/original_predictor/) | Global prediction heads, training, and ensemble assembly |
+| [method/residual_predictor](method/residual_predictor/) | RC-TabM architecture, residue batching, and training |
+| [analysis/reproduce_tables.py](analysis/reproduce_tables.py) | Table reconstruction and data validation |
+| [data/outputs](data/outputs/) | 18 core training, prediction, and mutation files |
+| [data/README.md](data/README.md) | File index, units, and field definitions |
+| [docs/MANUSCRIPT_MAP.md](docs/MANUSCRIPT_MAP.md) | Manuscript-to-artifact correspondence |
 | [third_party/tabm](third_party/tabm/) | TabM implementation |
-| [data/outputs](data/outputs/) | 13 core training and result files |
 
-## Setup
+## Data and evaluation
+
+The fixed partition contains 22,126 training, 2,766 validation, and 2,766 test enzyme–substrate pairs. Mutation design uses the 2,754 test pairs with sequences longer than 80 residues, representing 2,391 unique enzymes. External prediction evaluation contains 3,794 BRENDA records with exact sequences absent from the CataPro-derived source.
+
+| PAMP endpoint | Mean predicted change, log₂ units | Positive fraction |
+|---|---:|---:|
+| First-round Top1 | 0.1795 | 84.64% |
+| First-round best-of-Top5 | 0.3809 | 99.49% |
+| Two-round Top1, cumulative | 0.3016 | 87.22% |
+| Five-round Top1, cumulative | 0.5631 | 88.42% |
+
+Means are weighted by enzyme–substrate record. Positive fractions use a change strictly greater than zero. Paired comparisons align records by `row_id`; bootstrap resampling groups records by exact reference sequence.
+
+## Reproduce the reported tables
+
+The released tables can be analyzed on CPU using NumPy and pandas:
+
+```bash
+python -m pip install numpy pandas
+python analysis/reproduce_tables.py --check --bootstrap
+python analysis/reproduce_tables.py --json
+```
+
+These commands reconstruct the available predictor comparisons, mutation-search table, transfer table, and five-round summaries. Validation checks file hashes, partitions, substitution sequences, candidate selection, paired estimates, and the archived Extra Trees bootstrap intervals.
+
+## Train predictors and run mutation search
+
+Install the model dependencies and configure the experiment workspace:
 
 ```bash
 pip install -r requirements.txt
@@ -24,34 +66,27 @@ export PAMP_KCAT_CSV=/path/to/kcat-data_0.4simi-10fold.csv
 export PAMP_ESM2_CHECKPOINT=/path/to/esm2_t33_650M_UR50D.pt
 ```
 
-The workspace supplies protein/substrate features, split indices, residue caches, and predictor checkpoints. Paths are configured in [pamp_paths.py](pamp_paths.py).
-
-## Run
+[pamp_paths.py](pamp_paths.py) defines workspace paths for cached protein/substrate features, residue representations, partition indices, and trained checkpoints. Checkpoint identities and architecture settings are recorded in the released manifests and `paper_results.json`.
 
 ```bash
-# Train the CLS and interaction heads.
-python method/original_predictor/run_mean_kcat_comparison.py --out experiment_mean
+# Train the global CLS and interaction heads.
+python method/original_predictor/run_mean_kcat_comparison.py --out "$PAMP_DATA_ROOT/experiment_mean"
 
-# Train RC-TabM on the frozen global predictor.
+# Train the residue-conditioned correction.
 python method/residual_predictor/train.py
 
-# Run PAMP for two rounds.
-python method/search/run.py --dataset catapro --methods a3 --out outputs/pamp
+# Evaluate all five mutation methods on the manuscript cohort.
+python method/search/run.py --dataset catapro --methods all \
+  --sources residual --min-length 81 --site-policy distinct --out outputs/comparison
 
-# Continue PAMP to five rounds.
-python method/search/run_a3_round5.py --base outputs/pamp --out outputs/pamp_round5
+# Continue the PAMP trajectory through rounds 3–5.
+python method/search/run_a3_round5.py --base outputs/comparison --out outputs/pamp_round5
 ```
 
-Compact heads use `fit_run` in [train_compact_kcat.py](method/original_predictor/train_compact_kcat.py). Use `--methods all` to run the five-method comparison.
+Compact heads use `fit_run` in [train_compact_kcat.py](method/original_predictor/train_compact_kcat.py), with seeds 42, 2024, and 3407. Use `--methods a3` for PAMP alone or add `--extra-trees` to re-score candidates with the configured Extra Trees checkpoint.
 
-## Results
-
-[File index and data fields](data/README.md)
-
-- Six model-training histories, predictor configuration, ensemble manifests, evaluation metrics, and test predictions.
-- [Mutation endpoints](data/outputs/mutation_endpoints.csv.gz): 2,754 pairs × five methods × three endpoints.
-- [PAMP trajectories](data/outputs/pamp_five_rounds.csv.gz): 2,754 pairs × five rounds.
+The recorded training environment used Python 3.9.25, PyTorch 2.7.1+cu118, CUDA 11.8, and an NVIDIA GeForce RTX 3090. Detailed configurations, source hashes, and the timing record for rounds 3–5 are included in [paper_results.json](data/outputs/paper_results.json).
 
 ## License
 
-[MIT](LICENSE). TabM files retain their upstream license headers.
+[MIT](LICENSE). The vendored TabM files retain their upstream license headers.
