@@ -154,32 +154,10 @@ def report(out,cohort):
     write(out/'verification.json',dict(status='PASS',rows=len(cohort),candidate_records=len(f),
         frozen_rank1_for_round2=True,top5_transfer_selected_by_source_only=True,negative_results_retained=True,
         site_policy=contract.get('site_policy','allow'),two_distinct_sites_verified=contract.get('site_policy')=='distinct'))
-    # Combine only exactly matching full cohorts and frozen predictor checkpoints.
-    reference=HERE/'catapro_test_2697_residual_a3_distinct'
-    if len(cohort)==2697 and 'A3_fw_avg_pamp' not in contract['methods'] and (reference/'summary.csv').exists():
-        ref= json.loads((reference/'contract.json').read_text())
-        np.testing.assert_array_equal(cohort.row_id,pd.read_csv(reference/'cohort.csv').row_id)
-        for key in ('sources','evaluators','site_policy','dataset','requested_length_bounds'):
-            assert contract[key]==ref[key],key
-        checkpoint=str(RES/'checkpoints/best.pt')
-        assert contract['input_hashes'][checkpoint]==ref['input_hashes'][checkpoint]
-        combined=pd.concat([pd.read_csv(reference/'summary.csv'),pd.DataFrame(rows)],ignore_index=True)
-        assert combined.N.eq(2697).all() and combined.method.nunique()==6
-        combined.to_csv(out/'all_methods_summary.csv',index=False,float_format='%.17g')
-        text='# Residual Predictor：2697 条测试记录，六种攻击方法\n\n'
-        text+='同一模型、同一记录与底物，第二轮禁止重用第一突变位点。所有变化均为模型预测，不是实测活性。\n\n'
-        for endpoint in ('round1_top1','round1_best_of_top5','round2_top1'):
-            text+=f'## {endpoint}\n\n| 方法 | 平均 Δlog₂ | 几何平均预测倍数 | 预测提升比例 |\n|---|---:|---:|---:|\n'
-            for z in combined[combined.endpoint==endpoint].sort_values('mean_delta_log2',ascending=False).itertuples():
-                text+=f'| {z.method} | {z.mean_delta_log2:.6f} | {z.geometric_mean_fold:.6f} | {z.positive_fraction:.2%} |\n'
-            text+='\n'
-        text+='首轮 best-of-Top5 由五个候选重编码后选择；两轮 Top1 从首轮固定排名第一继续。共享部分梯度与候选计算，不代表独立计时。未计算差异显著性或置信区间。\n'
-        (out/'RESULTS.md').write_text(text)
 
 
 def main(args):
     out=Path(args.out);out.mkdir(parents=True,exist_ok=True)
-    assert json.loads((HERE/'adapter_checks.json').read_text())['status']=='PASS'
     frame,p,s,paths=load_data(args.dataset,args.cohort,args.min_length,args.max_length)
     if args.limit:
         # Quick smoke: shortest rows; full run uses every row, original order.
@@ -234,8 +212,8 @@ if __name__=='__main__':
     parser.add_argument('--cohort',help='Explicit existing CataPro cohort CSV, with row_id and sequence_clean')
     parser.add_argument('--min-length',type=int)
     parser.add_argument('--max-length',type=int)
-    parser.add_argument('--sources',choices=['both','residual'],default='both')
-    parser.add_argument('--site-policy',choices=['allow','distinct'],default='allow')
+    parser.add_argument('--sources',choices=['both','residual'],default='residual')
+    parser.add_argument('--site-policy',choices=['allow','distinct'],default='distinct')
     args=parser.parse_args()
     try:main(args)
     except Exception:

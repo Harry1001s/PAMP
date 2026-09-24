@@ -1,12 +1,49 @@
-"""Frozen differentiable output average, retaining the existing ESM2 space."""
+"""Frozen CLS, interaction, and compact-head ensemble."""
 import hashlib
 import json
 from pathlib import Path
 import torch
 from torch import nn
+from kcat_models import build_predictor
 from compact_kcat_models import load_compact_checkpoint
-from kcat_prediction_ensemble import MeanKcatEnsemble
 
+class MeanKcatEnsemble(nn.Module):
+    def __init__(self, checkpoints, weights=(.5,.5), device='cpu'):
+        super().__init__()
+        if len(checkpoints)!=len(weights) or len(checkpoints)==0:
+            raise ValueError('One weight is required per checkpoint')
+        weights=torch.tensor(weights,dtype=torch.float32)
+        if not torch.isfinite(weights).all() or (weights<0).any() or not torch.isclose(weights.sum(),torch.tensor(1.)):
+            raise ValueError('Finite nonnegative weights must sum to one')
+        models=[]; means=[]; scales=[]; splits=[]; sources=[]
+        for path in checkpoints:
+            ck=torch.load(path,map_location='cpu',weights_only=False)
+            if ck['model_config']['architecture'] not in ['mean_cls_transformer','mean_interaction_mlp']:
+                raise ValueError('Unexpected architecture')
+            m=build_predictor(**ck['model_config']); m.load_state_dict(ck['state_dict'],strict=True)
+            m.requires_grad_(False); models.append(m)
+            means.append(ck['mu']); scales.append(ck['sigma']); splits.append(ck['split_sha256']); sources.append(ck['data_sha256'])
+        if len(set(splits))!=1 or len(set(sources))!=1:
+            raise ValueError('Ensemble checkpoints must share source data and split')
+        self.models=nn.ModuleList(models)
+        self.register_buffer('weights',weights)
+        self.register_buffer('label_means',torch.tensor(means,dtype=torch.float32))
+        self.register_buffer('label_scales',torch.tensor(scales,dtype=torch.float32))
+        self.to(device); self.eval()
+
+    @classmethod
+    def from_manifest(cls,path,device='cpu'):
+        path=Path(path); spec=json.loads(path.read_text()); checkpoints=[]
+        for record in spec['checkpoints']:
+            p=Path(record['path']); p=p if p.is_absolute() else path.parent/p
+            if hashlib.sha256(p.read_bytes()).hexdigest()!=record['sha256']:
+                raise ValueError(f'Checkpoint fingerprint mismatch: {p}')
+            checkpoints.append(p)
+        return cls(checkpoints,spec['weights'],device)
+
+    def forward(self, protein_mean, substrate):
+        parts=torch.stack([m(protein_mean,substrate).float() for m in self.models],dim=-1)
+        return ((parts*self.label_scales+self.label_means)*self.weights).sum(-1)
 
 class ImprovedKcatEnsemble(nn.Module):
     def __init__(self, old_manifest, compact_checkpoints, *, source_sha256, split_sha256, device='cpu'):
@@ -63,45 +100,3 @@ class ImprovedKcatEnsemble(nn.Module):
 
     def predict_log2(self, protein_mean, substrate, fingerprint=None):
         return self(protein_mean, substrate, fingerprint)
-
-
-class ImprovedKcatAttackAdapter:
-    """Single-protein pred/input_gradient interface for the existing ESM2 attacks.
-
-    H is [L,1280] in the original ESM2 space. Pooling is differentiable; the
-    prediction head gives identical gradients to each valid residue, scaled 1/L.
-    The substrate embedding and optional MACCS fingerprint are held fixed.
-    """
-    def __init__(self, manifest_path, device='cuda', fingerprint=None):
-        self.device = torch.device(device)
-        self.model = ImprovedKcatEnsemble.from_manifest(manifest_path, device=device)
-        self.fingerprint = None
-        if self.model.fingerprint_dim:
-            if fingerprint is None:
-                raise ValueError('Supply the fixed substrate MACCS167 fingerprint for this model')
-            bits = torch.as_tensor(fingerprint, device=self.device, dtype=torch.float32).reshape(1, -1)
-            if bits.shape != (1, self.model.fingerprint_dim) or not ((bits == 0) | (bits == 1)).all():
-                raise ValueError('Expected a binary MACCS167 vector')
-            self.fingerprint = bits.detach().clone()
-        elif fingerprint is not None:
-            raise ValueError('This model does not use MACCS')
-
-    def pred(self, H, smiles_embedding, mask=None):
-        H = H.to(self.device, dtype=torch.float32)
-        if H.ndim != 2 or H.shape[1] != 1280:
-            raise ValueError('Expected original ESM2 residues [L,1280]')
-        if mask is None:
-            mask = torch.ones(len(H), dtype=torch.bool, device=self.device)
-        else:
-            mask = mask.to(self.device)
-        if mask.shape != (len(H),) or mask.dtype != torch.bool or not mask.any():
-            raise ValueError('Expected a nonempty boolean residue mask')
-        mean = H.masked_fill(~mask[:, None], 0).sum(0, keepdim=True) / mask.sum()
-        s = smiles_embedding.to(self.device, dtype=torch.float32).reshape(1, -1)
-        return self.model(mean, s, self.fingerprint).reshape(())
-
-    def input_gradient(self, H0, smiles_embedding, mask=None):
-        H = H0.detach().to(self.device, dtype=torch.float32).clone().requires_grad_(True)
-        prediction = self.pred(H, smiles_embedding, mask)
-        gradient = torch.autograd.grad(prediction, H)[0]
-        return prediction.detach(), gradient.detach()
